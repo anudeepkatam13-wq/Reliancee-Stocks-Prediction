@@ -1,0 +1,7 @@
+numpy
+joblib
+flask
+statsmodels
+pandas
+numpy
+gunicorn
