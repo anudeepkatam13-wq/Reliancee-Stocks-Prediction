@@ -1,63 +1,27 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-from flask import Flask, request, jsonify
+import streamlit as st
 import pickle
 
+st.title("Reliance Stock Prediction App")
 
-# In[ ]:
+@st.cache_resource
+def load_model():
+    with open("sarima_mod_dep.pkl", "rb") as f:
+        model = pickle.load(f)
+    return model
 
+model = load_model()
 
-app = Flask(__name__)
+steps = st.number_input(
+    "Enter number of days to predict:",
+    min_value=1,
+    max_value=365,
+    value=5
+)
 
-
-# In[ ]:
-
-
-# Load the trained model
-with open("sarima_mod_dep.pkl", "rb") as f:
-    model = pickle.load(f)
-
-
-# In[ ]:
-
-
-@app.route("/")
-def home():
-    return "Reliance Stock Prediction API is Running"
-
-
-# In[ ]:
-
-
-@app.route("/predict", methods=["POST"])
-def predict():
+if st.button("Predict"):
     try:
-        data = request.get_json()
-        steps = int(data["steps"])
-        # Generate forecast
         forecast = model.forecast(steps=steps)
-        return jsonify({
-            "prediction": forecast.tolist()
-        })
+        st.success("Prediction Successful!")
+        st.write(forecast)
     except Exception as e:
-        return jsonify({
-            "error": str(e)
-        })
-
-
-# In[ ]:
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
-
-
-# In[ ]:
-
-
-
-
+        st.error(f"Error: {e}")
